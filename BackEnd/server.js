@@ -30,6 +30,11 @@ const bookSchema = new mongoose.Schema({
 
 const bookModel = mongoose.model('my_books', bookSchema);
 
+// Serve the static files from the React app
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../build')));
+app.use('/static', express.static(path.join(__dirname, 'build//static')));
+
 app.delete('/api/book/:id', async (req, res) => {
   console.log("Delete: " + req.params.id);
 
@@ -59,9 +64,6 @@ app.post('/api/book', (req, res) => {
     });
 });
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
 
 app.get('/api/books', async (req, res) => {
   let books = await bookModel.find({});
@@ -79,6 +81,13 @@ app.put('/api/book/:identifier', async (req, res) => {
   let book = await bookModel.findByIdAndUpdate(req.params.identifier, req.body, { new: true });
   res.send(book);
 });
+
+//add at the bottom just over app.listen
+// Handles any requests that don't match the ones above
+app.get('*', (req,res) =>{
+  res.sendFile(path.join(__dirname+'/../build/index.html'));
+  });
+  
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
